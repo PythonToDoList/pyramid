@@ -33,7 +33,7 @@ dev_requires = [
 ]
 
 setup(
-    name='pyramid',
+    name='pyramid_todo',
     version='1.0.0',
     description='Pyramid To Do List',
     long_description=README + '\n\n' + CHANGES,
@@ -57,10 +57,10 @@ setup(
     install_requires=requires,
     entry_points={
         'paste.app_factory': [
-            'main = pyramid:main',
+            'main = pyramid_todo:main',
         ],
         'console_scripts': [
-            'initialize_pyramid_db = pyramid.scripts.initializedb:main',
+            'initialize_pyramid_db = pyramid_todo.scripts.initializedb:main',
         ],
     },
 )

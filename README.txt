@@ -6,7 +6,7 @@ Getting Started
 
 - Change directory into your newly created project.
 
-    cd pyramid
+    cd pyramid_todo
 
 - Create a Python virtual environment.
 

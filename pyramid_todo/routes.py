@@ -1,0 +1,10 @@
+def includeme(config):
+    config.add_static_view('static', 'static', cache_max_age=3600)
+    config.add_route('home', '/')
+    config.add_route('info', '/api/v1/')
+    config.add_route('tasks', '/api/v1/tasks')
+    config.add_route('one_task', '/api/v1/tasks/{id:\d+}')
+    config.add_route('new_profile', '/api/v1/profiles')
+    config.add_route('one_profile', '/api/v1/profiles/{id:\d+}')
+    config.add_route('login', '/api/v1/login')
+    config.add_route('logout', '/api/v1/logout')
