@@ -19,6 +19,8 @@ requires = [
     'transaction',
     'zope.sqlalchemy',
     'waitress',
+    'psycopg2',
+    'passlib'
 ]
 
 tests_require = [
@@ -60,7 +62,7 @@ setup(
             'main = pyramid_todo:main',
         ],
         'console_scripts': [
-            'initialize_pyramid_todo_db = pyramid_todo.scripts.initializedb:main',
+            'initdb = pyramid_todo.scripts.initializedb:main',
         ],
     },
 )
