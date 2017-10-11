@@ -1,5 +1,5 @@
-Pyramid To Do
-=============
+pyramid_todo
+============
 
 Getting Started
 ---------------
@@ -22,7 +22,7 @@ Getting Started
 
 - Configure the database.
 
-    env/bin/initialize_pyramid_db development.ini
+    env/bin/initialize_pyramid_todo_db development.ini
 
 - Run your project's tests.
 

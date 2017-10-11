@@ -34,8 +34,8 @@ dev_requires = [
 
 setup(
     name='pyramid_todo',
-    version='1.0.0',
-    description='Pyramid To Do List',
+    version='0.0',
+    description='pyramid_todo',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
         'Programming Language :: Python',
@@ -43,9 +43,9 @@ setup(
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
     ],
-    author='Nicholas Hunt-Walker',
-    author_email='nhuntwalker@gmail.com',
-    url='https://github.com/PythonToDoList/pyramid',
+    author='',
+    author_email='',
+    url='',
     keywords='web pyramid pylons',
     packages=find_packages(),
     include_package_data=True,
@@ -60,7 +60,7 @@ setup(
             'main = pyramid_todo:main',
         ],
         'console_scripts': [
-            'initialize_pyramid_db = pyramid_todo.scripts.initializedb:main',
+            'initialize_pyramid_todo_db = pyramid_todo.scripts.initializedb:main',
         ],
     },
 )

@@ -5,7 +5,7 @@ import zope.sqlalchemy
 
 # import or define all models here to ensure they are attached to the
 # Base.metadata prior to any initialization routines
-from pyramid_todo.models.models_defs import Profile, Task  # flake8: noqa
+from pyramid_todo.models.model_defs import Profile, Task  # flake8: noqa
 
 # run configure_mappers after defining all of the models to ensure
 # all relationships can be setup
@@ -53,7 +53,7 @@ def includeme(config):
     """
     Initialize the model for a Pyramid app.
 
-    Activate this setup using ``config.include('pyramid.models')``.
+    Activate this setup using ``config.include('pyramid_todo.models')``.
 
     """
     settings = config.get_settings()
