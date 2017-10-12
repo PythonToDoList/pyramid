@@ -1,5 +1,8 @@
+from datetime import datetime
+import json
 import os
 import sys
+import transaction
 
 from pyramid.paster import (
     get_appsettings,
@@ -35,5 +38,36 @@ def main(argv=sys.argv):
     settings['sqlalchemy.url'] = 'postgres://localhost:5432/pyramid_todo'
 
     engine = get_engine(settings)
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
+    session_factory = get_session_factory(engine)
+
+    with transaction.manager:
+        dbsession = get_tm_session(session_factory, transaction.manager)
+
+        person = Profile(
+            username='nhuntwalker',
+            email='nhuntwalker@gmail.com',
+            password='password',
+            date_joined=datetime.now(),
+        )
+        dbsession.add(person)
+
+    with transaction.manager:
+        dbsession = get_tm_session(session_factory, transaction.manager)
+
+        file_path = os.path.join(os.path.dirname(__file__), 'tasks.json')
+        fmt = '%m/%d/%Y %H:%M:%S %p'
+
+        for task in json.loads(open(file_path).read()):
+            task = Task(
+                name=task['title'],
+                note=task['note'],
+                creation_date=datetime.strptime(task['creation_date'], fmt) if task['creation_date'] else None,
+                due_date=datetime.strptime(task['due_date'], fmt) if task['due_date'] else None,
+                completed=task['completed'],
+                profile_id=dbsession.query(Profile).first().id,
+                profile=dbsession.query(Profile).first(),
+            )
+            dbsession.add(task)
