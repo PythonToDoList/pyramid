@@ -1,5 +1,5 @@
 #!/bin/bash
 set -e
-cd expense_tracker
+cd pyramid_todo
 python setup.py develop
 python runapp.py
