@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+cd expense_tracker
+python setup.py develop
+python runapp.py
