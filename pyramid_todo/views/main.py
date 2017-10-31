@@ -36,7 +36,7 @@ def info_view(request):
     }
 
 
-@view_config(route_name='tasks', renderer='json')
+@view_config(route_name='tasks', renderer='json', request_method='GET')
 def tasks_list(request):
     """List tasks for one user."""
     profile = get_profile(request, request.matchdict['username'])
@@ -46,27 +46,44 @@ def tasks_list(request):
             tasks = request.dbsession.query(Task).filter(
                 Task.profile == profile
             ).all()
-            return {
-                'username': username,
-                'tasks': [task.to_dict() for task in tasks],
-            }
-
-        elif request.method == "POST":
-            due_date = f'{request.POST["due_date"]} {request.POST["due_time"]}'
-            task = Task(
-                name=request.POST['name'],
-                note=request.POST['note'],
-                creation_date=datetime.now(),
-                due_date=datetime.strptime(due_date, '%d/%m/%Y %H:%M:%S') if request.POST['due_date'] else None,
-                completed=request.POST['completed'],
-                profile_id=profile.id,
-                profile=profile
+            return HTTPOk(
+                body=json.dumps({
+                    'username': username,
+                    'tasks': [task.to_dict() for task in tasks],
+                }),
+                headers=request.headers
             )
-            request.dbsession.add(task)
-            return {'msg': 'post'}
-    return {
-        'error': 'Invalid username'
-    }
+    return HTTPNotFound(
+        body=json.dumps({'error': 'The profile does not exist'}),
+        headers=request.headers
+    )
+
+
+@view_config(route_name='tasks', renderer='json', request_method='POST')
+def task_create(request):
+    """Create a new task for this user."""
+    profile = get_profile(request, request.matchdict['username'])
+    if profile:
+        due_date = request.POST['due_date']
+        task = Task(
+            name=request.POST['name'],
+            note=request.POST['note'],
+            creation_date=datetime.now(),
+            due_date=datetime.strptime(due_date, '%d/%m/%Y %H:%M:%S') if due_date else None,
+            completed=request.POST['completed'],
+            profile_id=profile.id,
+            profile=profile
+        )
+        request.dbsession.add(task)
+        return HTTPCreated(
+            body=json.dumps({'msg': 'posted'}),
+            headers=request.headers
+        )
+
+    return HTTPNotFound(
+        body=json.dumps({'error': 'The profile does not exist'}),
+        headers=request.headers
+    )
 
 
 @view_config(route_name='one_task', renderer='json', request_method='GET')
@@ -82,11 +99,12 @@ def task_detail(request):
                 headers=request.headers
             )
         return HTTPNotFound(
-            body=json.dumps({'username': username, 'task': {}}),
+            body=json.dumps({'username': username, 'task': None}),
             headers=request.headers
         )
     return HTTPForbidden(
-        body=json.dumps({'error': 'You do not have permission to access this data.'})
+        body=json.dumps({'error': 'You do not have permission to access this data.'}),
+        headers=request.headers
     )
 
 
@@ -103,7 +121,8 @@ def task_update(request):
             if 'note' in request.POST:
                 task.note = request.POST['note']
             if 'due_date' in request.POST:
-                task.due_date = datetime.strptime(due_date, '%d/%m/%Y %H:%M:%S') if request.POST['due_date'] else None
+                due_date = request.POST['due_date']
+                task.due_date = datetime.strptime(due_date, '%d/%m/%Y %H:%M:%S') if due_date else None
             if 'completed' in request.POST:
                 task.due_date = request.POST['completed']
             request.dbsession.add(task)
@@ -113,11 +132,12 @@ def task_update(request):
                 headers=request.headers
             )
         return HTTPNotFound(
-            body=json.dumps({'username': username, 'task': {}}),
+            body=json.dumps({'username': username, 'task': None}),
             headers=request.headers
         )
     return HTTPForbidden(
-        body=json.dumps({'error': 'You do not have permission to access this data.'})
+        body=json.dumps({'error': 'You do not have permission to access this data.'}),
+        headers=request.headers
     )
 
 
@@ -135,7 +155,8 @@ def task_delete(request):
             headers=request.headers
         )
     return HTTPForbidden(
-        body=json.dumps({'error': 'You do not have permission to access this data.'})
+        body=json.dumps({'error': 'You do not have permission to access this data.'}),
+        headers=request.headers
     )
 
 
@@ -144,9 +165,13 @@ def profile_detail(request):
     """Get detail for one profile."""
     if security.is_user(request):
         profile = get_profile(request, request.matchdict['username'])
-        return profile.to_dict() if profile else {}
+        return HTTPOk(
+            body=json.dumps(profile.to_dict()),
+            headers=request.headers
+        )
     return HTTPForbidden(
-        body=json.dumps({'error': 'You do not have permission to access this profile.'})
+        body=json.dumps({'error': 'You do not have permission to access this profile.'}),
+        headers=request.headers
     )
 
 
@@ -189,7 +214,8 @@ def profile_delete(request):
             body=json.dumps({'msg': 'Profile deleted'})
         )
     return HTTPForbidden(
-        body=json.dumps({'error': 'You do not have permission to access this profile.'})
+        body=json.dumps({'error': 'You do not have permission to access this profile.'}),
+        headers=request.headers
     )
 
 
