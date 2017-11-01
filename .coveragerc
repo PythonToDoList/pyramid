@@ -1,3 +1,9 @@
 [run]
 source = pyramid_todo
-omit = pyramid_todo/test*
+omit = 
+    pyramid_todo/test*
+    pyramid_todo/__init__.py
+    pyramid_todo/scripts/initializedb.py
+
+[report]
+show_missing = True
