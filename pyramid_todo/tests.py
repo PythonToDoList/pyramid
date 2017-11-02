@@ -257,3 +257,101 @@ def test_user1_cannot_edit_user2_profile(testapp):
 
     response = testapp.put('/api/v1/accounts/foobar', {'username': 'tugboat'}, status=403)
     assert response.json == {'error': 'You do not have permission to access this profile.'}
+
+
+def test_user_can_view_own_tasks(testapp):
+    testapp.post('/api/v1/accounts/login', {'username': 'nhuntwalker', 'password': 'potato'})
+    response = testapp.get('/api/v1/accounts/nhuntwalker/tasks')
+    profile = testapp.get('/api/v1/accounts/nhuntwalker')
+    for task in profile.json['tasks']:
+        assert task in response.json['tasks']
+    assert len(profile.json['tasks']) == len(response.json['tasks'])
+
+
+def test_users_cannot_see_each_others_tasks(testapp):
+    response = testapp.get('/api/v1/accounts/barfoo/tasks', status=403)
+    assert response.json == {'error': 'You do not have permission to access this data.'}
+
+
+def test_user_can_create_task(testapp):
+    new_task = {
+        'name': 'Kill all humans',
+        'note': 'Kill all the humans',
+        'due_date': '01/01/2020 00:00:00',
+        'completed': False
+    }
+    response = testapp.post('/api/v1/accounts/nhuntwalker/tasks', new_task)
+    assert response.json == {'msg': 'posted'}
+
+
+def test_users_cannot_make_tasks_for_other_users(testapp):
+    new_task = {
+        'name': 'Kill all humans',
+        'note': 'Kill all the humans',
+        'due_date': '01/01/2020 00:00:00',
+        'completed': False
+    }
+    response = testapp.post('/api/v1/accounts/barfoo/tasks', new_task, status=403)
+    assert response.json == {'error': 'You do not have permission to access this data.'}
+
+
+def test_users_cannot_make_tasks_for_nonexistent_profiles(testapp):
+    new_task = {
+        'name': 'Kill all humans',
+        'note': 'Kill all the humans',
+        'due_date': '01/01/2020 00:00:00',
+        'completed': False
+    }
+    response = testapp.post('/api/v1/accounts/flergblerg/tasks', new_task, status=404)
+    assert response.json == {'error': 'The profile does not exist'}
+
+
+def test_users_can_see_details_of_own_task(testapp):
+    tasks = testapp.get('/api/v1/accounts/nhuntwalker/tasks').json['tasks']
+    response = testapp.get('/api/v1/accounts/nhuntwalker/tasks/{}'.format(tasks[0]['id']))
+    assert response.json['username'] == 'nhuntwalker'
+    assert all([key in response.json['task'] for key in ['id', 'name', 'note', 'creation_date', 'due_date', 'completed', 'profile_id']])
+
+
+def test_users_cant_see_tasks_they_dont_own(testapp):
+    response = testapp.get('/api/v1/accounts/nhuntwalker/tasks/50000', status=404)
+    assert response.json == {'username': 'nhuntwalker', 'task': None}
+
+
+def test_users_cant_see_other_user_individual_tasks_whether_exist_or_not(testapp):
+    response = testapp.get('/api/v1/accounts/barfoo/tasks/50', status=403)
+    assert response.json == {'error': 'You do not have permission to access this data.'}
+
+
+def test_users_can_update_own_task(testapp):
+    one_task = testapp.get('/api/v1/accounts/nhuntwalker/tasks').json['tasks'][0]
+    update_dict = {'name': 'Pay all your bills'}
+    response = testapp.put('/api/v1/accounts/nhuntwalker/tasks/{}'.format(one_task['id']), update_dict)
+    one_task['name'] = 'Pay all your bills'
+    assert response.json == {
+        'username': 'nhuntwalker',
+        'task': one_task
+    }
+
+
+def test_users_cannot_update_nonexistent_task(testapp):
+    update_dict = {'name': 'Pay all your bills'}
+    response = testapp.put('/api/v1/accounts/nhuntwalker/tasks/50000', update_dict, status=404)
+    assert response.json == {'username': 'nhuntwalker', 'task': None}
+
+
+def test_users_cannot_update_other_user_task(testapp):
+    update_dict = {'name': 'Pay all your bills'}
+    response = testapp.put('/api/v1/accounts/barfoo/tasks/10', update_dict, status=403)
+    assert response.json == {'error': 'You do not have permission to access this data.'}
+
+
+def test_users_can_delete_tasks(testapp):
+    tasks = testapp.get('/api/v1/accounts/nhuntwalker/tasks').json['tasks']
+    response = testapp.delete('/api/v1/accounts/nhuntwalker/tasks/{}'.format(tasks[0]['id']))
+    assert response.json == {'username': 'nhuntwalker', 'msg': 'Deleted.'}
+
+
+def test_users_cannot_delete_other_user_tasks(testapp):
+    response = testapp.delete('/api/v1/accounts/barfoo/tasks/5000', status=403)
+    assert response.json == {'error': 'You do not have permission to access this profile.'}

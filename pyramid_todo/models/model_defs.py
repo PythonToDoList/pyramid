@@ -30,8 +30,11 @@ class Profile(Base):
             "username": self.username,
             "email": self.email,
             "date_joined": self.date_joined.strftime(DATE_FMT),
-            "tasks": self.tasks
+            "tasks": [task.to_dict() for task in self.tasks]
         }
+
+    def __repr__(self):
+        return "<Profile: {} | tasks: {}>".format(self.username, len(self.tasks))
 
 
 class Task(Base):
@@ -55,3 +58,6 @@ class Task(Base):
             'completed': self.completed,
             'profile_id': self.profile_id
         }
+
+    def __repr__(self):
+        return "<Task: {} | owner: {}>".format(self.name, self.profile.username)
