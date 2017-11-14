@@ -74,18 +74,22 @@ def task_create(request):
     if profile:
         if security.is_user(request):
             due_date = request.POST['due_date']
-            task = Task(
-                name=request.POST['name'],
-                note=request.POST['note'],
-                creation_date=datetime.now(),
-                due_date=datetime.strptime(due_date, '%d/%m/%Y %H:%M:%S') if due_date else None,
-                completed=request.POST['completed'],
-                profile_id=profile.id,
-                profile=profile
-            )
-            request.dbsession.add(task)
-            response.status_code = 201
-            return {'msg': 'posted'}
+            try:
+                task = Task(
+                    name=request.POST['name'],
+                    note=request.POST['note'],
+                    creation_date=datetime.now(),
+                    due_date=datetime.strptime(due_date, '%d/%m/%Y %H:%M:%S') if due_date else None,
+                    completed=request.POST['completed'],
+                    profile_id=profile.id,
+                    profile=profile
+                )
+                request.dbsession.add(task)
+                response.status_code = 201
+                return {'msg': 'posted'}
+            except KeyError:
+                response.status_code = 400
+                return {'error': 'Some fields are missing'}
 
         response.status_code = 403
         return {'error': 'You do not have permission to access this data.'}
