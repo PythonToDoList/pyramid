@@ -40,7 +40,7 @@ def info_view(request):
         "create task": 'POST /api/v1/accounts/<username>/tasks',
         "task detail": 'GET /api/v1/accounts/<username>/tasks/<id>',
         "task update": 'PUT /api/v1/accounts/<username>/tasks/<id>',
-        "delete task": 'DELETE /api/v1/accounts/<username>/tasks</id>'
+        "delete task": 'DELETE /api/v1/accounts/<username>/tasks/<id>'
     }
 
 

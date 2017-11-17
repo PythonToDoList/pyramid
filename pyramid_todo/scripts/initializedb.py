@@ -12,6 +12,7 @@ from pyramid.paster import (
 from pyramid.scripts.common import parse_vars
 
 from pyramid_todo.models.meta import Base
+from pyramid_todo.security import hasher
 from pyramid_todo.models import (
     get_engine,
     get_session_factory,
@@ -49,7 +50,7 @@ def main(argv=sys.argv):
         person = Profile(
             username='nhuntwalker',
             email='nhuntwalker@gmail.com',
-            password='password',
+            password=hasher.hash('password'),
             date_joined=datetime.now(),
         )
         dbsession.add(person)

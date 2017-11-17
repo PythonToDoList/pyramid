@@ -64,3 +64,11 @@ Configure the [Heroku Postgres add-on](https://elements.heroku.com/addons/heroku
 ```
 pyramid $ heroku addons:create heroku-postgresql:hobby-dev
 ```
+
+Set your own `AUTH_SECRET` environment variable on Heroku
+
+```
+pyramid $ heroku config:set AUTH_SECRET='some secret string'
+```
+
+Push this repository to your Heroku repository and `heroku open` to view the site.
